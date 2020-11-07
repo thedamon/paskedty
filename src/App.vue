@@ -5,7 +5,7 @@
     </div>
   </div>
   <div class="container mx-auto px-4">
-    <div class="bg-gray-200 p-4 my-8">
+    <div class="bg-gray-200 p-4 my-4">
 
     <h2 class="font-semibold mb-3 text-xl">🛠 Config</h2>
     <div class="flex mb-1 items-center">
@@ -21,10 +21,12 @@
     <p>In order to schedule for <em>quality time</em>, the total time is calculated by removing 'sleeping' hours and 'school' hours</p>
   </div>
     
-
     <h2 class="text-4xl mt-8 mb-4 font-semibold text-gray-700 flex justify-between">
       <span>🗓 Schedule</span>
-      <span :class="`${schedulePctColor}`"><span class="font-bold">{{ schedulePctFormatted }} %</span> <span class="font-light">({{ Math.round((schedulePct - custodyPct) * 100) }})</span></span>
+      <span :class="`${schedulePctColor}`">
+        <span class="font-bold">{{ schedulePctFormatted }} %</span>
+        <span v-if="(custodyPct - schedulePct > 0)" class="font-light">({{ Math.round((schedulePct - custodyPct) * 100) }})</span>
+      </span>
     </h2>
 
 
