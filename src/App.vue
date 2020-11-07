@@ -30,7 +30,7 @@
     </h2>
 
 
-    <button class="appearance-none" @click="showTemplates = !showTemplates"><h2 class="text-xl mt-8 mb-4 font-semibold text-gray-700">✨ Create Schedule from Example:</h2></button>
+    <button class="appearance-none" @click="showTemplates = !showTemplates"><h2 class="text-xl mt-8 mb-4 font-semibold text-gray-700">✨ Create Schedule from Example {{ schedule.length && !showTemplates ? '➡️' : '✨' }}</h2></button>
     <div v-show="!schedule.length || showTemplates" class="templates grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
        <button
         @click="newFromTemplate(idx)"
@@ -61,8 +61,14 @@
         </div>  
         <div class="flex flex-col justify-items-end mx-3">
           <div>
-            <label>🔄<input type="checkbox" class="shadow" @click="toggleEventRepeat(idx)" :checked="event.every"/></label>
-            <div v-if="event.every"><input :class="s.inputT" type="number" min="0" v-model="event.every"/> {{ event.every > 1 ? 'weeks' : 'week'}}</div>
+            <label>🔄
+              <input type="checkbox" class="shadow" @click="toggleEventRepeat(idx)" :checked="event.every"/>
+            </label>
+            <span v-if="event.every" class="text-uppercase text-gray-600"> every</span>
+          </div>
+          <div v-if="event.every">
+            <input :class="s.inputT" type="number" min="0" v-model="event.every"/>
+            {{ event.every > 1 ? 'weeks' : 'week'}}
           </div>
         </div>
         <div class="flex flex-col justify-items-end mx-3">
@@ -88,7 +94,7 @@
         <dd class="inline">2 full days</dd></div>
       <div>
         <dt class="font-semibold inline">schoolDay: </dt>
-        <dd class="inline">24 - sleep - school,</dd></div>
+        <dd class="inline">24 - sleep - school</dd></div>
       <div>
         <dt class="font-semibold inline">fullWeekAlt: </dt>
         <dd class="inline">7 full days</dd></div>
@@ -266,7 +272,7 @@ export default {
         this.schedule.push({
           label: "",
           unit: "fullDay",
-          every: 1,
+          every: null,
           number: 1,
         })
       },
