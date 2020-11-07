@@ -1,9 +1,11 @@
 <template>
   <div class="eventItem my-2 text-sm leading-tight">
+        {{ label }}
+        {{ label ? '(':'' }}
         {{ number }}
         {{ unit }}{{ number > 1 ? 's' : ''}}
         {{ period }}
-        {{label && `(${label})` }}
+        {{ label ? ')':'' }}
   </div>
 </template>
 

@@ -97,10 +97,10 @@
         <dd class="inline">24 - sleep - school</dd></div>
       <div>
         <dt class="font-semibold inline">fullWeekAlt: </dt>
-        <dd class="inline">7 full days</dd></div>
+        <dd class="inline">7 full days (not accounting for already alotted time that week)</dd></div>
       <div>
         <dt class="font-semibold inline">fullWeek: </dt>
-        <dd class="inline">5 full days (assuming extension of parents' weekend</dd></div>
+        <dd class="inline">5 full days (assuming extension of parents' weekend)</dd></div>
     </dl>
   </div>
 </template>
@@ -179,7 +179,7 @@ export default {
           number: 3,
         },
         {unit: 'hour', every: 2, number: 4, label: 'sunday dinner alternate weekends'},
-        {label: 'holidays', unit: 'fullWeek', number: 3}
+        {label: '3 weeks holidays (4 extra days * 3)', unit: 'fullDay', number: 12}
         ],
       }]
     };
