@@ -1,7 +1,7 @@
 <template>
   <div class="eventItem my-2 text-sm leading-tight">
         {{ number }}
-        {{ unit }}
+        {{ unit }}{{ number > 1 ? 's' : ''}}
         {{ period }}
         {{label && `(${label})` }}
   </div>

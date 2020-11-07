@@ -47,20 +47,19 @@
     </div>
     
     <div v-if="schedule.length">
-      <div v-for="(event, idx) in schedule" :key="idx" class="p-2 bg-gray-200 my-3 flex">
+      <div v-for="(event, idx) in schedule" :key="idx" class="py-2 bg-gray-200 my-3 flex">
         <div class="flex flex-col justify-items-end mx-3">
           <label class="text-uppercase text-gray-600">number</label>
           <input :class="s.inputT" type="number" min="1" v-model="event.number"/>
         </div>
         <div class="flex flex-col justify-items-end mx-3">
-          <label class="text-uppercase text-gray-600">length</label>
+          <label class="text-uppercase text-gray-600"><a href="#lengths">length</a></label>
           <div><select :class="s.select" v-model="event.unit">
             <option v-for="unit in Object.keys(units)" :key="unit">{{unit}}</option>
           </select>
-          s</div>
+          </div>
         </div>  
         <div class="flex flex-col justify-items-end mx-3">
-          <label class="text-uppercase text-gray-600">repeat</label>
           <div>
             <label>🔄<input type="checkbox" class="shadow" @click="toggleEventRepeat(idx)" :checked="event.every"/></label>
             <div v-if="event.every"><input :class="s.inputT" type="number" min="0" v-model="event.every"/> {{ event.every > 1 ? 'weeks' : 'week'}}</div>
@@ -71,16 +70,32 @@
           <input :class="s.select" type="text" v-model="event.label"/>
         </div>
         <div class="flex flex-col flex-1 justify-items-end mx-3 items-end">
-          <button @click="deleteEvent(idx)" class="appearance-none rounded bg-red-300 p-1 m-1 text-xs ">❌&nbsp;del</button>
-          <button @click="duplicateEvent(idx)" class="appearance-none rounded bg-purple-300 p-1 m-1 text-xs ">❇️&nbsp;dup</button>
+          <button @click="deleteEvent(idx)" class="appearance-none rounded bg-red-300 p-1 m-1 text-xs hover:bg-red-400">❌&nbsp;delete</button>
+          <button @click="duplicateEvent(idx)" class="appearance-none rounded bg-purple-300 p-1 m-1 text-xs hover:bg-purple-400">❇️&nbsp;duplicate</button>
         </div>
       </div>
     </div>
 
-    <button @click="addEvent" class="bg-teal-500 py-2 px-4 rounded hover:bg-teal-600 text-xl my-4">➕ Add Event</button>
+    <button @click="addEvent" class="bg-teal-500 py-2 px-6 rounded hover:bg-teal-600 text-2xl text-white my-4">+ Add Event</button>
 
     
-
+    <dl id="lengths" class="bg-gray-200 p-4 my-4">
+      <div>
+        <dt class="font-semibold inline">fullDay: </dt>
+        <dd class="inline">full day without school (24 - sleep)</dd></div>
+      <div>
+        <dt class="font-semibold inline">weekend: </dt>
+        <dd class="inline">2 full days</dd></div>
+      <div>
+        <dt class="font-semibold inline">schoolDay: </dt>
+        <dd class="inline">24 - sleep - school,</dd></div>
+      <div>
+        <dt class="font-semibold inline">fullWeekAlt: </dt>
+        <dd class="inline">7 full days</dd></div>
+      <div>
+        <dt class="font-semibold inline">fullWeek: </dt>
+        <dd class="inline">5 full days (assuming extension of parents' weekend</dd></div>
+    </dl>
   </div>
 </template>
 
@@ -132,8 +147,8 @@ export default {
           every: 2,
           number: 3,
         },
-        {unit: 'hours', every: 2, number: 4, label: 'sunday dinner alternate weekends'},
-        {unit: 'hours', every: 1, number: 4, label: 'weekly weekday dinner'}
+        {unit: 'hour', every: 2, number: 4, label: 'sunday dinner alternate weekends'},
+        {unit: 'hour', every: 1, number: 4, label: 'weekly weekday dinner'}
         ],
       },
       {
@@ -157,7 +172,7 @@ export default {
           every: 2,
           number: 3,
         },
-        {unit: 'hours', every: 2, number: 4, label: 'sunday dinner alternate weekends'},
+        {unit: 'hour', every: 2, number: 4, label: 'sunday dinner alternate weekends'},
         {label: 'holidays', unit: 'fullWeek', number: 3}
         ],
       }]
@@ -177,7 +192,7 @@ export default {
         schoolDay: 24 - this.sleep - this.school,
         fullWeekAlt: this.fullDay * 7,
         fullWeek: this.fullDay * 5,
-        hours: 1
+        hour: 1
       };
     },
     qualityHoursPerWeek() {
