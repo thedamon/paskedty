@@ -40,7 +40,7 @@
         <div class="flex-1">
         <EventItem v-for="(evt, edx) in sched.events" :key="edx" v-bind="evt"/>
         </div>
-        <p class="text-2xl text-right font-bold" :class="`text-${sched.pctColor}`">{{ sched.pctFormatted }} %</p>
+        <p class="text-2xl text-right font-bold" :class="`${sched.pctColor}`">{{ sched.pctFormatted }} %</p>
       </button>
     </div>
     
