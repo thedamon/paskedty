@@ -24,7 +24,7 @@
 
     <h2 class="text-4xl mt-8 mb-4 font-semibold text-gray-700 flex justify-between">
       <span>🗓 Schedule</span>
-      <span class="font-bold" :class="`${schedulePctColor}`">{{ schedulePctFormatted }} %</span>
+      <span :class="`${schedulePctColor}`"><span class="font-bold">{{ schedulePctFormatted }} %</span> <span class="font-light">({{ Math.round((schedulePct - custodyPct) * 100) }})</span></span>
     </h2>
 
 
