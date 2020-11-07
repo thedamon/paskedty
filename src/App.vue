@@ -5,19 +5,6 @@
     </div>
   </div>
   <div class="container mx-auto px-4">
-
-
-    <h2 class="text-xl my-3 font-semibold text-gray-700">Intro</h2>
-    <p class="mb-2">
-      We use 'quality hours' only (removing school and sleep time), so that the goal is to schedule <strong>{{Math.round(custodyPct * 100)}}%</strong> of our child's quality time with the parent.</p>
-    <p class="mb-2">
-      We use an additive approach, taking the parent with the lower percentage and allowing shared time to contribute to the total (weekly dinners, for example).</p>
-    <p class="mb-2">
-      We do not treat summer holidays differently since parent will still be working.
-    </p>
-
-    
-
     <div class="bg-gray-200 p-4 my-8">
 
     <h2 class="font-semibold mb-3 text-xl">🛠 Config</h2>
@@ -30,12 +17,14 @@
     <div class="flex mb-1 items-center">
       <label for="school" class="w-1/3 block"><span class="font-semibold">School</span> (hours per weekday)</label>
       <input min="0" type="number" :class="s.input" v-model="school" id="school"/></div>
-    </div>
+
+    <p>In order to schedule for <em>quality time</em>, the total time is calculated by removing 'sleeping' hours and 'school' hours</p>
+  </div>
     
 
     <h2 class="text-4xl mt-8 mb-4 font-semibold text-gray-700 flex justify-between">
       <span>🗓 Schedule</span>
-      <span class="font-bold" :class="`text-${schedulePctColor}`">{{ schedulePctFormatted }} %</span>
+      <span class="font-bold" :class="`${schedulePctColor}`">{{ schedulePctFormatted }} %</span>
     </h2>
 
 
@@ -228,18 +217,15 @@ export default {
         //     : 1) * evt.number || 1;
       },
       pctColor(pct){
-        console.log(pct);
-        if (pct >= this.custodyPct) return 'green-600';
-        if (pct + .01 >= this.custodyPct) return 'green-300';
-        if (pct + .05 >= this.custodyPct) return 'orange-400';
-        if (pct + .15 >= this.custodyPct) return 'orange-600';
-        return 'orange-700';
+        if (pct >= this.custodyPct) return 'text-green-600';
+        if (pct + .01 >= this.custodyPct) return 'text-green-300';
+        if (pct + .05 >= this.custodyPct) return 'text-orange-400';
+        if (pct + .15 >= this.custodyPct) return 'text-orange-600';
+        return 'text-orange-700';
       },
       eventHours(evt){
         let thisHours = this.units[evt.unit];
         let perYear = this.perYear(evt);
-        console.log('thisHours :' +thisHours)
-        console.log('perYear :' +perYear)
         return perYear * thisHours;
       },
       percentageFromEvents(events){
@@ -247,7 +233,6 @@ export default {
         events.forEach(evt => {
           hours += this.eventHours(evt);
         });
-        console.log('totalHours: ' + hours);
         return hours / (52 * this.qualityHoursPerWeek);
       },
       newFromTemplate(idx){
