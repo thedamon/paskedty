@@ -1,12 +1,14 @@
 <template>
 <div class="shadow">
   <div class="container mx-auto px-4">
-    <h1 class="font-display text-5xl py-1 text-purple-700">Paskeddy</h1>
-    </div>
+    <h1 class="flex items-center">
+      <span class="font-display text-5xl py-1 text-purple-700">Paskeddy</span>
+      <span class="text-gray-500 ml-4">coparenting custody calculator</span>
+    </h1>
   </div>
-  <div class="container mx-auto px-4">
-    <div class="bg-purple-100 p-4 my-4">
-
+</div>
+<div class="container mx-auto px-4">
+  <div class="bg-purple-100 p-4 my-4">
     <h2 class="font-semibold mb-3 text-xl text-purple-800">🛠 Config</h2>
     <div class="flex mb-1 items-center">
       <label for="custodyPct" class="w-1/3 block"><span class="font-semibold">Custody percentage</span> (decimal)</label>
@@ -20,7 +22,7 @@
 
     <p>In order to schedule for <em>quality time</em>, the total time is calculated by removing 'sleeping' hours and 'school' hours</p>
   </div>
-    
+    <p v-if="cacheMsg">ℹ️ <em class="text-gray-500 text-sm">{{ cacheMsg }}</em></p>
     <h2 class="text-4xl mt-8 mb-4 font-semibold text-purple-800 flex justify-between">
       <span>🗓 Schedule</span>
       <span :class="`${schedulePctColor}`">
@@ -29,7 +31,7 @@
         <span v-if="(custodyPct - schedulePct > 0)" class="font-light">({{ Math.round((schedulePct - custodyPct) * 100) }})</span>
       </span>
     </h2>
-
+    
 
     <button class="appearance-none" @click="showTemplates = !showTemplates">
       <h2 class="text-xl mt-8 mb-4 font-semibold text-purple-800">✨ {{ schedule.length ? 'New' : 'Create' }} Schedule from Example {{ schedule.length && !showTemplates ? '➡️' : '✨' }}</h2>
@@ -134,7 +136,7 @@ export default {
         inputT: 'shadow appearance-none border rounded w-16 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
         select: 'shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
       },
-      childName: 'Tessa',
+      cacheMsg: '',
       custodyPct: 0.4,
       sleep: 10,
       school: 6,
@@ -251,66 +253,84 @@ export default {
           ? '🙂'
           : ''
     },
-  },  
-    methods: {
-      perYear(evt){
-        const num = evt.number || 1
-        if (!evt.every) return num;
-        return (52 / evt.every) * num;
-        // (evt.every 
-        //     ? 52 / evt.every || 1 
-        //     : 1) * evt.number || 1;
-      },
-      pctColor(pct){
-        if (pct > 1 ) return 'text-red-500'
-        if (pct >= this.custodyPct) return 'text-green-600';
-        if (pct + .01 >= this.custodyPct) return 'text-green-300';
-        if (pct + .05 >= this.custodyPct) return 'text-orange-400';
-        if (pct + .15 >= this.custodyPct) return 'text-orange-600';
-        return 'text-orange-700';
-      },
-      eventHours(evt){
-        let thisHours = this.units[evt.unit];
-        let perYear = this.perYear(evt);
-        return perYear * thisHours;
-      },
-      percentageFromEvents(events){
-        let hours = 0;
-        events.forEach(evt => {
-          if (evt.subtract){
-            hours -= this.eventHours(evt);
-          } else {
-            hours += this.eventHours(evt);
-          }
-        });
-        return hours / (52 * this.qualityHoursPerWeek);
-      },
-      newFromTemplate(idx){
-        this.schedule = this.templates[idx].events.map(evt => ({...evt, subtract: evt.subtract || false }));
-        this.showTemplates = false;
-      },
-      duplicateEvent(idx){
-        this.schedule.push({...this.schedule[idx]});
-      },
-      deleteEvent(idx){
-        this.schedule.splice(idx, 1);
-      },
-      addEvent(){
-        this.schedule.push({
-          label: "",
-          unit: "fullDay",
-          every: null,
-          number: 1,
-          subtract: false
-        })
-      },
-  
-      toggleEventRepeat(idx){
-        this.schedule[idx].every ? 
-          this.schedule[idx].every = null 
-          : this.schedule[idx].every = 1;
-      }
-    
   },
+  watch: {
+    schedule:{
+      deep: true,
+      handler(){
+        localStorage.setItem('scheduleCache', JSON.stringify(this.schedule))
+      }
+    }
+  },
+  methods: {
+    perYear(evt){
+      const num = evt.number || 1
+      if (!evt.every) return num;
+      return (52 / evt.every) * num;
+      // (evt.every 
+      //     ? 52 / evt.every || 1 
+      //     : 1) * evt.number || 1;
+    },
+    pctColor(pct){
+      if (pct > 1 ) return 'text-red-500'
+      if (pct >= this.custodyPct) return 'text-green-600';
+      if (pct + .01 >= this.custodyPct) return 'text-green-300';
+      if (pct + .05 >= this.custodyPct) return 'text-orange-400';
+      if (pct + .15 >= this.custodyPct) return 'text-orange-600';
+      return 'text-orange-700';
+    },
+    eventHours(evt){
+      let thisHours = this.units[evt.unit];
+      let perYear = this.perYear(evt);
+      return perYear * thisHours;
+    },
+    percentageFromEvents(events){
+      let hours = 0;
+      events.forEach(evt => {
+        if (evt.subtract){
+          hours -= this.eventHours(evt);
+        } else {
+          hours += this.eventHours(evt);
+        }
+      });
+      return hours / (52 * this.qualityHoursPerWeek);
+    },
+    newFromTemplate(idx){
+      this.schedule = this.templates[idx].events.map(evt => ({...evt, subtract: evt.subtract || false }));
+      this.showTemplates = false;
+    },
+    duplicateEvent(idx){
+      this.schedule.push({...this.schedule[idx]});
+    },
+    deleteEvent(idx){
+      this.schedule.splice(idx, 1);
+    },
+    addEvent(){
+      this.schedule.push({
+        label: "",
+        unit: "fullDay",
+        every: null,
+        number: 1,
+        subtract: false
+      })
+    },
+
+    toggleEventRepeat(idx){
+      this.schedule[idx].every ? 
+        this.schedule[idx].every = null 
+        : this.schedule[idx].every = 1;
+    }
+  },
+  created(){
+    const cache = localStorage.getItem('scheduleCache')
+    if (cache){
+      try {
+        this.schedule = JSON.parse(cache);
+        this.cacheMsg = "Stored data retrieved from previous session"
+      } catch (error) {
+        this.cacheMsg = "Error parsing stored data";
+      }
+    }
+  }
 };
 </script>
