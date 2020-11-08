@@ -117,6 +117,9 @@
       <div>
         <dt class="font-semibold inline">fullWeek: </dt>
         <dd class="inline">5 full days (assuming extension of parents' weekend)</dd></div>
+      <div>
+        <dt class="font-semibold inline">week: </dt>
+        <dd class="inline">weekend plus 'school/work' week</dd></div>
     </dl>
   </div>
 </template>
@@ -174,16 +177,22 @@ export default {
         ],
       },
       {
-        name: 'every other weekend + holidays',
-        events: [{
-          label: "",
-          unit: "weekend",
-          every: 2,
-          number: 1,
-        },{
-          label: 'holidays',
-          unit: 'fullWeek',
+        name: 'most holidays',
+        events: [
+        {
+          label: 'march and winter breaks',
+          unit: 'fullWeekAlt',
+          number: 3
+        },
+        {
+          label: 'summer holidays',
+          unit: 'week',
           number: 9
+        },
+        {
+          label: 'summer holidays (off)',
+          unit: 'fullWeekAlt',
+          number: 1
         }],
       }
       ,{
@@ -215,6 +224,7 @@ export default {
         schoolDay: 24 - this.sleep - this.school,
         fullWeekAlt: this.fullDay * 7,
         fullWeek: this.fullDay * 5,
+        week: (2 * this.fullDay) + ((24 - this.sleep - this.school)*5),
         hour: 1
       };
     },
