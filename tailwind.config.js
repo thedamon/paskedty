@@ -14,13 +14,16 @@ module.exports = {
         "text-orange-400",
         "text-orange-600",
         "text-orange-700",
+        "text-red-500",
       ],
     },
   },
   corePlugins: {
     // preflight: false,
   },
-  theme: {},
+  theme: {
+    fontFamily: { display: ['"Gochi Hand"', "cursive"] },
+  },
   future: {
     removeDeprecatedGapUtilities: true,
     purgeLayersByDefault: true,

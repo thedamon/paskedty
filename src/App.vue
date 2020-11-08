@@ -1,13 +1,13 @@
 <template>
 <div class="shadow">
   <div class="container mx-auto px-4">
-    <h1 class="font-semibold text-2xl py-4 text-purple-700">Paskeddy</h1>
+    <h1 class="font-display text-5xl py-1 text-purple-700">Paskeddy</h1>
     </div>
   </div>
   <div class="container mx-auto px-4">
-    <div class="bg-gray-200 p-4 my-4">
+    <div class="bg-purple-100 p-4 my-4">
 
-    <h2 class="font-semibold mb-3 text-xl">🛠 Config</h2>
+    <h2 class="font-semibold mb-3 text-xl text-purple-800">🛠 Config</h2>
     <div class="flex mb-1 items-center">
       <label for="custodyPct" class="w-1/3 block"><span class="font-semibold">Custody percentage</span> (decimal)</label>
       <input min="0" step=".05" type="number" :class="s.input" v-model="custodyPct" id="custodyPct"/></div>
@@ -21,16 +21,19 @@
     <p>In order to schedule for <em>quality time</em>, the total time is calculated by removing 'sleeping' hours and 'school' hours</p>
   </div>
     
-    <h2 class="text-4xl mt-8 mb-4 font-semibold text-gray-700 flex justify-between">
+    <h2 class="text-4xl mt-8 mb-4 font-semibold text-purple-800 flex justify-between">
       <span>🗓 Schedule</span>
       <span :class="`${schedulePctColor}`">
+        {{ scheduleEmoji }}
         <span class="font-bold">{{ schedulePctFormatted }} %</span>
         <span v-if="(custodyPct - schedulePct > 0)" class="font-light">({{ Math.round((schedulePct - custodyPct) * 100) }})</span>
       </span>
     </h2>
 
 
-    <button class="appearance-none" @click="showTemplates = !showTemplates"><h2 class="text-xl mt-8 mb-4 font-semibold text-gray-700">✨ Create Schedule from Example {{ schedule.length && !showTemplates ? '➡️' : '✨' }}</h2></button>
+    <button class="appearance-none" @click="showTemplates = !showTemplates">
+      <h2 class="text-xl mt-8 mb-4 font-semibold text-purple-800">✨ {{ schedule.length ? 'New' : 'Create' }} Schedule from Example {{ schedule.length && !showTemplates ? '➡️' : '✨' }}</h2>
+    </button>
     <div v-show="!schedule.length || showTemplates" class="templates grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
        <button
         @click="newFromTemplate(idx)"
@@ -47,21 +50,28 @@
     </div>
     
     <div v-if="schedule.length">
-      <div v-for="(event, idx) in schedule" :key="idx" class="py-2 bg-gray-200 my-3 flex">
-        <div class="flex flex-col justify-items-end mx-3">
+      <div v-for="(event, idx) in schedule" :key="idx" class="my-3 flex flex-wrap" :class="event.subtract ? 'bg-orange-100' : 'bg-purple-100' ">
+        
+          <div class="flex flex-col justify-items-end m-2">
+            <label class="text-uppercase text-gray-600" title="subtract?">⬅️
+            <input class="shadow" type="checkbox" v-model="event.subtract"/></label>
+            <div class="text-2xl">{{event.subtract ? '-' : '+'}}</div>
+          </div>
+        
+        <div class="flex flex-col justify-items-end m-2">
           <label class="text-uppercase text-gray-600">number</label>
           <input :class="s.inputT" type="number" min="1" v-model="event.number"/>
         </div>
-        <div class="flex flex-col justify-items-end mx-3">
+        <div class="flex flex-col justify-items-end m-2">
           <label class="text-uppercase text-gray-600"><a href="#lengths">length</a></label>
           <div><select :class="s.select" v-model="event.unit">
             <option v-for="unit in Object.keys(units)" :key="unit">{{unit}}</option>
           </select>
           </div>
         </div>  
-        <div class="flex flex-col justify-items-end mx-3">
+        <div class="flex flex-col justify-items-end m-2">
           <div>
-            <label>🔄
+            <label title="repeat?">🔄
               <input type="checkbox" class="shadow" @click="toggleEventRepeat(idx)" :checked="event.every"/>
             </label>
             <span v-if="event.every" class="text-uppercase text-gray-600"> every</span>
@@ -71,21 +81,25 @@
             {{ event.every > 1 ? 'weeks' : 'week'}}
           </div>
         </div>
-        <div class="flex flex-col justify-items-end mx-3">
+        
+        <div class="flex flex-col flex-1 justify-items-end m-2">
           <label class="text-uppercase text-gray-600">note</label>
           <input :class="s.select" type="text" v-model="event.label"/>
         </div>
-        <div class="flex flex-col flex-1 justify-items-end mx-3 items-end">
+   
+        <div class="flex flex-col justify-items-end m-2 items-end">
           <button @click="deleteEvent(idx)" class="appearance-none rounded bg-red-300 p-1 m-1 text-xs hover:bg-red-400">❌&nbsp;delete</button>
           <button @click="duplicateEvent(idx)" class="appearance-none rounded bg-purple-300 p-1 m-1 text-xs hover:bg-purple-400">❇️&nbsp;duplicate</button>
+          
         </div>
+
       </div>
     </div>
 
     <button @click="addEvent" class="bg-teal-500 py-2 px-6 rounded hover:bg-teal-600 text-2xl text-white my-4">+ Add Event</button>
 
     
-    <dl id="lengths" class="bg-gray-200 p-4 my-4">
+    <dl id="lengths" class="bg-purple-100 p-4 my-4">
       <div>
         <dt class="font-semibold inline">fullDay: </dt>
         <dd class="inline">full day without school (24 - sleep)</dd></div>
@@ -118,7 +132,7 @@ export default {
       s: {
         input: 'shadow appearance-none border rounded w-20 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
         inputT: 'shadow appearance-none border rounded w-16 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
-        select: 'shadow appearance-none border rounded w-80 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+        select: 'shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
       },
       childName: 'Tessa',
       custodyPct: 0.4,
@@ -179,7 +193,8 @@ export default {
           number: 3,
         },
         {unit: 'hour', every: 2, number: 4, label: 'sunday dinner alternate weekends'},
-        {label: '3 weeks holidays (4 extra days * 3)', unit: 'fullDay', number: 12}
+        {label: '3 weeks holidays', unit: 'fullWeek', number: 3},
+        {label: 'adjust holidays for 3 day weekend', unit: 'fullDay', number: 3, subtract: true},
         ],
       }]
     };
@@ -228,7 +243,14 @@ export default {
     },
     schedulePctColor(){
       return this.pctColor(this.schedulePct);
-    }
+    },
+    scheduleEmoji(){
+      return this.schedulePct > 1 
+        ? '😬'
+        : this.schedulePct + .02 > this.custodyPct && this.schedulePct - .02 < this.custodyPct 
+          ? '🙂'
+          : ''
+    },
   },  
     methods: {
       perYear(evt){
@@ -240,6 +262,7 @@ export default {
         //     : 1) * evt.number || 1;
       },
       pctColor(pct){
+        if (pct > 1 ) return 'text-red-500'
         if (pct >= this.custodyPct) return 'text-green-600';
         if (pct + .01 >= this.custodyPct) return 'text-green-300';
         if (pct + .05 >= this.custodyPct) return 'text-orange-400';
@@ -254,12 +277,16 @@ export default {
       percentageFromEvents(events){
         let hours = 0;
         events.forEach(evt => {
-          hours += this.eventHours(evt);
+          if (evt.subtract){
+            hours -= this.eventHours(evt);
+          } else {
+            hours += this.eventHours(evt);
+          }
         });
         return hours / (52 * this.qualityHoursPerWeek);
       },
       newFromTemplate(idx){
-        this.schedule = this.templates[idx].events.map(evt => ({...evt}));
+        this.schedule = this.templates[idx].events.map(evt => ({...evt, subtract: evt.subtract || false }));
         this.showTemplates = false;
       },
       duplicateEvent(idx){
@@ -274,8 +301,10 @@ export default {
           unit: "fullDay",
           every: null,
           number: 1,
+          subtract: false
         })
       },
+  
       toggleEventRepeat(idx){
         this.schedule[idx].every ? 
           this.schedule[idx].every = null 
