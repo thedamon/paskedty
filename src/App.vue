@@ -12,13 +12,13 @@
     <h2 class="font-semibold mb-3 text-xl text-purple-800">🛠 Config</h2>
     <div class="flex mb-1 items-center">
       <label for="custodyPct" class="w-1/3 block"><span class="font-semibold">Custody percentage</span> (decimal)</label>
-      <input min="0" step=".05" type="number" :class="s.input" v-model="custodyPct" id="custodyPct"/></div>
+      <input min="0" step=".05" type="number" :class="s.input" v-model="config.custodyPct" id="custodyPct"/></div>
     <div class="flex mb-1 items-center">
       <label for="sleep" class="w-1/3 block"><span class="font-semibold">Sleep</span> (hours per day)</label>
-      <input min="0" type="number" :class="s.input" v-model="sleep" id="sleep"/></div>
+      <input min="0" type="number" :class="s.input" v-model="config.sleep" id="sleep"/></div>
     <div class="flex mb-1 items-center">
       <label for="school" class="w-1/3 block"><span class="font-semibold">School</span> (hours per weekday)</label>
-      <input min="0" type="number" :class="s.input" v-model="school" id="school"/></div>
+      <input min="0" type="number" :class="s.input" v-model="config.school" id="school"/></div>
 
     <p>In order to schedule for <em>quality time</em>, the total time is calculated by removing 'sleeping' hours and 'school' hours</p>
   </div>
@@ -28,7 +28,7 @@
       <span :class="`${schedulePctColor}`">
         {{ scheduleEmoji }}
         <span class="font-bold">{{ schedulePctFormatted }} %</span>
-        <span v-if="(custodyPct - schedulePct > 0)" class="font-light">({{ Math.round((schedulePct - custodyPct) * 100) }})</span>
+        <span v-if="(config.custodyPct - schedulePct > 0)" class="font-light">({{ Math.round((schedulePct - config.custodyPct) * 100) }})</span>
       </span>
     </h2>
     
@@ -56,17 +56,17 @@
         
           <div class="flex flex-col justify-items-end m-2">
             <label class="text-uppercase text-gray-600" title="subtract?">⬅️
-            <input class="shadow" type="checkbox" v-model="event.subtract"/></label>
+            <input class="shadow" type="checkbox" aria-label="subtract this event" v-model="event.subtract"/></label>
             <div class="text-2xl">{{event.subtract ? '-' : '+'}}</div>
           </div>
         
         <div class="flex flex-col justify-items-end m-2">
-          <label class="text-uppercase text-gray-600">number</label>
-          <input :class="s.inputT" type="number" min="1" v-model="event.number"/>
+          <label class="text-uppercase text-gray-600" for="numberInput">number</label>
+          <input :class="s.inputT" type="number" min="1" v-model="event.number" id="numberInput"/>
         </div>
         <div class="flex flex-col justify-items-end m-2">
-          <label class="text-uppercase text-gray-600"><a href="#lengths">length</a></label>
-          <div><select :class="s.select" v-model="event.unit">
+          <label class="text-uppercase text-gray-600" for="unitInput"><a href="#lengths">length</a></label>
+          <div><select :class="s.select" v-model="event.unit" id="unitInput">
             <option v-for="unit in Object.keys(units)" :key="unit">{{unit}}</option>
           </select>
           </div>
@@ -74,12 +74,12 @@
         <div class="flex flex-col justify-items-end m-2">
           <div>
             <label title="repeat?">🔄
-              <input type="checkbox" class="shadow" @click="toggleEventRepeat(idx)" :checked="event.every"/>
+              <input aria-label="repeat?" type="checkbox" class="shadow" @click="toggleEventRepeat(idx)" :checked="event.every"/>
             </label>
-            <span v-if="event.every" class="text-uppercase text-gray-600"> every</span>
+            <label v-if="event.every" class="text-uppercase text-gray-600" for="everyInput"> every</label>
           </div>
           <div v-if="event.every">
-            <input :class="s.inputT" type="number" min="0" v-model="event.every"/>
+            <input id="everyInput" :class="s.inputT" type="number" min="0" v-model="event.every"/>
             {{ event.every > 1 ? 'weeks' : 'week'}}
           </div>
         </div>
@@ -121,6 +121,7 @@
         <dt class="font-semibold inline">week: </dt>
         <dd class="inline">weekend plus 'school/work' week</dd></div>
     </dl>
+    <p class="text-gray-500 text-center my-8"><a class="underline" href="https://github.com/thedamon/paskedty">contribute, report issues, or browse sourcecode</a></p>
   </div>
 </template>
 
@@ -137,12 +138,14 @@ export default {
       s: {
         input: 'shadow appearance-none border rounded w-20 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
         inputT: 'shadow appearance-none border rounded w-16 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline',
-        select: 'shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline'
+        select: 'shadow appearance-none border rounded py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline'
       },
       cacheMsg: '',
-      custodyPct: 0.4,
-      sleep: 10,
-      school: 6,
+      config: {
+        custodyPct: 0.4,
+        sleep: 10,
+        school: 6,
+      },
       showTemplates: false,
       schedule: [],
       templates: [{
@@ -212,7 +215,7 @@ export default {
   },
   computed: {
     fullDay() {
-      return 24 - this.sleep;
+      return 24 - this.config.sleep;
     },
     // schoolDay
     // the desired number of
@@ -221,10 +224,10 @@ export default {
       return {
         fullDay: this.fullDay,
         weekend: 2 * this.fullDay,
-        schoolDay: 24 - this.sleep - this.school,
+        schoolDay: 24 - this.config.sleep - this.config.school,
         fullWeekAlt: this.fullDay * 7,
         fullWeek: this.fullDay * 5,
-        week: (2 * this.fullDay) + ((24 - this.sleep - this.school)*5),
+        week: (2 * this.fullDay) + ((24 - this.config.sleep - this.config.school)*5),
         hour: 1
       };
     },
@@ -233,7 +236,7 @@ export default {
     },
 
     targetCustodyHours() {
-      return this.qualityHoursPerWeek * 52 * this.custodyPct;
+      return this.qualityHoursPerWeek * 52 * this.config.custodyPct;
     },
     formattedTemplates(){
       return this.templates.map(template => {
@@ -259,7 +262,7 @@ export default {
     scheduleEmoji(){
       return this.schedulePct > 1 
         ? '😬'
-        : this.schedulePct + .02 > this.custodyPct && this.schedulePct - .02 < this.custodyPct 
+        : this.schedulePct + .02 > this.config.custodyPct && this.schedulePct - .02 < this.config.custodyPct 
           ? '🙂'
           : ''
     },
@@ -269,6 +272,12 @@ export default {
       deep: true,
       handler(){
         localStorage.setItem('scheduleCache', JSON.stringify(this.schedule))
+      }
+    },
+    config:{
+      deep: true,
+      handler(){
+        localStorage.setItem('configCache', JSON.stringify(this.config))
       }
     }
   },
@@ -283,10 +292,10 @@ export default {
     },
     pctColor(pct){
       if (pct > 1 ) return 'text-red-500'
-      if (pct >= this.custodyPct) return 'text-green-600';
-      if (pct + .01 >= this.custodyPct) return 'text-green-300';
-      if (pct + .05 >= this.custodyPct) return 'text-orange-400';
-      if (pct + .15 >= this.custodyPct) return 'text-orange-600';
+      if (pct >= this.config.custodyPct) return 'text-green-600';
+      if (pct + .01 >= this.config.custodyPct) return 'text-green-300';
+      if (pct + .05 >= this.config.custodyPct) return 'text-orange-400';
+      if (pct + .15 >= this.config.custodyPct) return 'text-orange-600';
       return 'text-orange-700';
     },
     eventHours(evt){
@@ -296,7 +305,7 @@ export default {
     },
     percentageFromEvents(events){
       let hours = 0;
-      events.forEach(evt => {
+      events && events.forEach(evt => {
         if (evt.subtract){
           hours -= this.eventHours(evt);
         } else {
@@ -332,10 +341,13 @@ export default {
     }
   },
   created(){
-    const cache = localStorage.getItem('scheduleCache')
-    if (cache){
+    const scheduleCache = localStorage.getItem('scheduleCache')
+    const configCache = localStorage.getItem('configCache')
+    
+    if (scheduleCache || configCache){
       try {
-        this.schedule = JSON.parse(cache);
+        this.schedule = scheduleCache ? JSON.parse(scheduleCache) : [];
+        if (configCache) this.config = JSON.parse(configCache);
         this.cacheMsg = "Stored data retrieved from previous session"
       } catch (error) {
         this.cacheMsg = "Error parsing stored data";
